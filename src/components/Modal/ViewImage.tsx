@@ -7,8 +7,7 @@ import {
   Image,
   Link,
 } from '@chakra-ui/react';
-
-import { theme } from '../../styles/theme';
+import React from 'react';
 
 interface ModalViewImageProps {
   isOpen: boolean;
@@ -22,28 +21,30 @@ export function ModalViewImage({
   imgUrl,
 }: ModalViewImageProps): JSX.Element {
   return (
-    <Modal onClose={onClose} isOpen={isOpen}>
-      <ModalOverlay opacity={0.5} />
+    <Modal isOpen={isOpen} onClose={onClose} isCentered size="4xl">
+      <ModalOverlay />
       <ModalContent
-        alignSelf="center"
-        display="flex"
-        alignItems="center"
-        mw={900}
-        mh={600}
+        mx="auto"
+        w="auto"
+        h="auto"
+        maxW={['300px', '500px', '900px']}
+        maxH={['350px', '450px', '600px']}
       >
-        <ModalBody padding={0}>
-          <Image src={imgUrl} borderTopRadius="md" />
+        <ModalBody p="0">
+          <Image
+            src={imgUrl}
+            maxW={['300px', '500px', '900px']}
+            maxH={['350px', '450px', '600px']}
+          />
         </ModalBody>
-        <ModalFooter
-          bgColor={theme.colors.pGray['800']}
-          w="100%"
-          justifyContent="flex-start"
-        >
-          <Link href={imgUrl} target="_blank">
+        <ModalFooter bg="pGray.800" h="2rem" py="20px" borderBottomRadius="5px">
+          <Link href={imgUrl} isExternal fontSize="1rem" mr="auto">
             Abrir original
           </Link>
+
         </ModalFooter>
       </ModalContent>
+
     </Modal>
-  );
+  )
 }

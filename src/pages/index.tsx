@@ -8,7 +8,7 @@ import { api } from '../services/api';
 import { Loading } from '../components/Loading';
 import { Error } from '../components/Error';
 
-type Image = {
+interface Image {
   title: string;
   description: string;
   url: string;
@@ -16,21 +16,21 @@ type Image = {
   id: string;
 };
 
-type ImagesResponse = {
-  data: Image[];
+interface GetImagesResponse {
   after: string;
-};
+  data: Image[];
+}
 
 export default function Home(): JSX.Element {
-  async function fetchImages({ pageParam = null }): Promise<ImagesResponse> {
-    const response = await api.get('/api/images', {
+  async function fetchImages({ pageParam = null }): Promise<GetImagesResponse> {
+    const { data } = await api('/api/images', {
       params: {
         after: pageParam,
       },
     });
-
-    return response.data;
+    return data;
   }
+
   const {
     data,
     isLoading,
@@ -38,23 +38,28 @@ export default function Home(): JSX.Element {
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useInfiniteQuery('images', fetchImages, {
-    getNextPageParam: lastPage => lastPage.after ?? null,
-  });
+  } = useInfiniteQuery(
+    'images', fetchImages, {
+    getNextPageParam: lastPage => lastPage?.after || null
+  }   
+  );
 
   const formattedData = useMemo(() => {
-    return data?.pages.flatMap(imageData => {
-      return imageData.data.flat();
-    });
+   const formatted = data?.pages.flatMap(imageData => {
+     return imageData.data.flat();
+   })
+   console.log(formatted)
+   return formatted;
   }, [data]);
 
-  if (isLoading) {
-    return <Loading />;
+  if(isLoading && !isError) {
+    return <Loading  />
+  }
+  if(!isLoading && isError) {
+    return <Error  />
   }
 
-  if (isError) {
-    return <Error />;
-  }
+  
 
   return (
     <>
@@ -64,12 +69,11 @@ export default function Home(): JSX.Element {
         <CardList cards={formattedData} />
         {hasNextPage && (
           <Button
-            type="button"
             onClick={() => fetchNextPage()}
-            loadingText="Carregando..."
-            isLoading={isFetchingNextPage}
+            disabled={isFetchingNextPage}
+            mt={6}
           >
-            Carregar mais
+            {isFetchingNextPage ? 'Carregando...' : 'Carregar mais'}
           </Button>
         )}
       </Box>
